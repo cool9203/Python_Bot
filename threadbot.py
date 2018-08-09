@@ -182,13 +182,20 @@ class MySql():
 
 		for rowCount in range(int(len(tempValues) / len(columnName))):
 			string = ""
+			nullPtr = False
+			#檢查null
 			for index in range(int(columnCountLimit)):
-				string += str(columnName.Get(index)) + r"='" + str(tempValues.Get(rowCount * len(columnName) + index)) + r"'"
-				if (index != columnCountLimit - 1):
-					string += r" AND "
-			if (self.DllSelect(string) == 0):
-				for index in range(len(columnName)):
-					values.Push(tempValues.Get(rowCount * len(columnName) + index))
+				if (len(str(tempValues.Get(rowCount * len(columnName) + index)))==0):
+					nullPtr = True
+
+			if (nullPtr == False):
+				for index in range(int(columnCountLimit)):
+					string += str(columnName.Get(index)) + r"='" + str(tempValues.Get(rowCount * len(columnName) + index)) + r"'"
+					if (index != columnCountLimit - 1):
+						string += r" AND "
+				if (self.DllSelect(string) == 0):
+					for index in range(len(columnName)):
+						values.Push(tempValues.Get(rowCount * len(columnName) + index))
 		#self.Write("values.txt", values.Get())
 		return values
 
@@ -461,8 +468,9 @@ class Queue(threading.Thread):
 
 
 	def push(self, data):
+		data.start()
 		self.queue.append(data)
-		self.queue[len(self.queue)-1].start()
+		#self.queue[len(self.queue)-1].start()
 
 
 	def pop(self):
@@ -492,7 +500,7 @@ def main():
 				break
 
 			while True:
-				if (len(queue) < 5):
+				if (len(queue) < 10):
 					break
 			temp = Bot(urlList.Get(index))
 			queue.push(temp)
